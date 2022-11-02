@@ -26,3 +26,20 @@ fourcc = cv2.VideoWriter_fourcc(*"XVID")
 writer = cv2.VideoWriter('output.avi', fourcc, 5,(888,500))
 writer = VideoWriter('output.avi',(frame.shape[1], frame.shape[0]))
 writer.open()
+
+#helmet shape detect
+
+def helmet_or_nohelmet(helmet_roi):
+    try:
+        helmet_roi = cv2.resize(helmet_roi, (224, 224))
+        helmet_roi = np.array(helmet_roi,dtype='float32')
+        helmet_roi = helmet_roi.reshape(1, 224, 224, 3)
+        helmet_roi = helmet_roi/255.0
+        return int(model.predict(helmet_roi)[0][0])
+    except:
+            pass
+
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+ret = True
