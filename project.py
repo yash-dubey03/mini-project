@@ -79,3 +79,35 @@ while ret:
                 classIds.append(class_id)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+     for i in range(len(boxes)):
+        if i in indexes:
+            x,y,w,h = boxes[i]
+            color = [int(c) for c in COLORS[classIds[i]]]
+            # green --> bike
+            # red --> number plate
+            if classIds[i]==0: #bike
+                helmet_roi = img[max(0,y):max(0,y)+max(0,h)//4,max(0,x):max(0,x)+max(0,w)]
+            else: #number plate
+                x_h = x-60
+                y_h = y-350
+                w_h = w+100
+                h_h = h+100
+                cv2.rectangle(img, (x, y), (x + w, y + h), color, 7)
+                # h_r = img[max(0,(y-330)):max(0,(y-330 + h+100)) , max(0,(x-80)):max(0,(x-80 + w+130))]
+                if y_h>0 and x_h>0:
+                    h_r = img[y_h:y_h+h_h , x_h:x_h +w_h]
+                    c = helmet_or_nohelmet(h_r)
+                    cv2.putText(img,['helmet','no-helmet'][c],(x,y-100),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),2)                
+                    cv2.rectangle(img, (x_h, y_h), (x_h + w_h, y_h + h_h),(255,0,0), 10)
+
+
+    writer.write(img)
+    cv2.imshow("Image", img)
+
+    if cv2.waitKey(1) == 27:
+        break
+
+writer.release()
+cap.release()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
